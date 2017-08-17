@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
+import javax.swing.JTextArea;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -28,8 +29,21 @@ import org.apache.lucene.store.FSDirectory;
  * @author PeaceFull
  */
 public class Lucene_Indexing {
-     StandardAnalyzer analyzer;
+
+    StandardAnalyzer analyzer;
     public IndexSearcher searcher = null;
+
+    String searchString;
+    
+JTextArea resultTextArea;
+    public Lucene_Indexing(String searchString,JTextArea resultTextArea) {
+
+          this.searchString = searchString;
+          this.resultTextArea=resultTextArea;
+                  
+    }
+
+   
 
     public void indexingPdfText() throws IOException, ParseException, InvalidTokenOffsetsException {
 
@@ -54,9 +68,10 @@ public class Lucene_Indexing {
             }
         }
 
-        writer.close();
-        Lucene_Highlighter_Searching highlightSearch = new Lucene_Highlighter_Searching();
-        highlightSearch.highlighterSearch(indexDirectory, analyzer);
+        writer.close();     
+        Lucene_Highlighter_Searching highlightSearch = new Lucene_Highlighter_Searching(indexDirectory, analyzer,searchString,resultTextArea);
+        highlightSearch.searchMain(searchString);
+       
 
     }
 
@@ -64,7 +79,7 @@ public class Lucene_Indexing {
 
         PdfBoxConverter pdfConvert = new PdfBoxConverter();
         analyzer = new StandardAnalyzer();
-        String INDEX_DIRECTORY = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\Output";
+        String INDEX_DIRECTORY = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\text_output";
         Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
@@ -81,15 +96,13 @@ public class Lucene_Indexing {
         }
 
         writer.close();
-        Lucene_Highlighter_Searching highlightSearch = new Lucene_Highlighter_Searching();
-        highlightSearch.highlighterSearch(indexDirectory, analyzer);
+        Lucene_Highlighter_Searching highlightSearch = new Lucene_Highlighter_Searching(indexDirectory, analyzer,searchString,resultTextArea);
+        highlightSearch.searchMain(searchString);
 
     }
 
-    
+    private static void addPdfDocuments(IndexWriter writer, String br, String filePath, String fileName) throws IOException {
 
-    private static void addPdfDocuments(IndexWriter writer,String br, String filePath, String fileName) throws IOException {
-     
         Document doc = new Document();
         doc.add(new TextField("contents", br, Field.Store.YES));
         doc.add(new StringField("fileName", fileName, Field.Store.YES));// use a string field for course_code because we don't want it tokenized
@@ -99,7 +112,7 @@ public class Lucene_Indexing {
     }
 
     private static void addPlainTextDocuments(IndexWriter writer, BufferedReader br, String filePath, String fileName) throws IOException {
-      
+
         Document doc = new Document();
         String line;
         String contents = "";
@@ -113,4 +126,6 @@ public class Lucene_Indexing {
         doc.add(new StringField("filePath", filePath, Field.Store.YES));
         writer.addDocument(doc);
     }
+
+    
 }
