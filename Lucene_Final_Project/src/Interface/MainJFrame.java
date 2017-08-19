@@ -5,11 +5,23 @@
  */
 package Interface;
 
+import FullSearch.Full_Index_Search;
+import Suggestion.Lucene_Suggestion;
+import java.awt.Color;
+import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
-import luceneFinalProject.Lucene_Indexing;
-import luceneFinalProject.Lucene_Suggestion;
+import luceneTEXT.Lucene_Indexing;
+import luceneHTML.IndexHTML;
+import luceneJSON.IndexJSON;
+import lucenePDF.IndexPDF;
+import luceneWord.IndexWord;
+import luceneXML.IndexXML;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 
 /**
  *
@@ -20,11 +32,11 @@ public class MainJFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainJFrame
      */
-    
-        String operatorSelect;
-        String fileSelect;
+    String operatorSelect;
+    String fileSelect;
     ButtonGroup operatorGroup;
-     ButtonGroup fileGroup;
+    ButtonGroup fileGroup;
+
     public MainJFrame() {
         operatorGroup = new ButtonGroup();
 
@@ -37,6 +49,9 @@ public class MainJFrame extends javax.swing.JFrame {
         fileGroup.add(pdfDocumentRadioButton);
         fileGroup.add(textDocumentRadioButton);
         fileGroup.add(xmlDocumentRadioButton);
+
+        fileGroup.add(wordDocumentRadioButton);
+        fileGroup.add(htmlDocumentRadioButton);
     }
 
     /**
@@ -54,7 +69,7 @@ public class MainJFrame extends javax.swing.JFrame {
         searchTextBox = new javax.swing.JTextField();
         searchLabel = new javax.swing.JLabel();
         textDocumentRadioButton = new javax.swing.JRadioButton();
-        pdfDocumentRadioButton = new javax.swing.JRadioButton();
+        htmlDocumentRadioButton = new javax.swing.JRadioButton();
         xmlDocumentRadioButton = new javax.swing.JRadioButton();
         jsonDocumentRadioButton = new javax.swing.JRadioButton();
         searchButton = new javax.swing.JButton();
@@ -63,6 +78,20 @@ public class MainJFrame extends javax.swing.JFrame {
         orRadioButton = new javax.swing.JRadioButton();
         notRadioButton = new javax.swing.JRadioButton();
         searchTextBox2 = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        suggestTextArea = new javax.swing.JTextArea();
+        pdfDocumentRadioButton = new javax.swing.JRadioButton();
+        wordDocumentRadioButton = new javax.swing.JRadioButton();
+        suggestButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        advancedSearch = new javax.swing.JButton();
+        mainSearchTextBox = new javax.swing.JTextField();
+        searchLabel1 = new javax.swing.JLabel();
+        mainSuggestButton = new javax.swing.JButton();
+        mainsearchButton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        mainSuggestTextArea = new javax.swing.JTextArea();
         rightJPanel = new javax.swing.JPanel();
         rightScrollPane = new javax.swing.JScrollPane();
         resultTextArea = new javax.swing.JTextArea();
@@ -77,6 +106,7 @@ public class MainJFrame extends javax.swing.JFrame {
         leftJPanel.setBorder(new javax.swing.border.MatteBorder(null));
         leftJPanel.setPreferredSize(new java.awt.Dimension(300, 500));
 
+        searchTextBox.setEnabled(false);
         searchTextBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchTextBoxActionPerformed(evt);
@@ -86,21 +116,27 @@ public class MainJFrame extends javax.swing.JFrame {
         searchLabel.setText("Enter the text to be Searched");
 
         textDocumentRadioButton.setText("Text Document");
+        textDocumentRadioButton.setEnabled(false);
 
-        pdfDocumentRadioButton.setText("PDF Document");
+        htmlDocumentRadioButton.setText("HTML Document");
+        htmlDocumentRadioButton.setEnabled(false);
 
         xmlDocumentRadioButton.setText("XML Format Document");
+        xmlDocumentRadioButton.setEnabled(false);
 
         jsonDocumentRadioButton.setText("JSON Format Document");
+        jsonDocumentRadioButton.setEnabled(false);
 
         searchButton.setText("Search");
+        searchButton.setEnabled(false);
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchButtonActionPerformed(evt);
             }
         });
 
-        suggestButton.setText("Suggest Words");
+        suggestButton.setText("Suggest Words TextBox-1");
+        suggestButton.setEnabled(false);
         suggestButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 suggestButtonActionPerformed(evt);
@@ -108,6 +144,7 @@ public class MainJFrame extends javax.swing.JFrame {
         });
 
         andRadioButton.setText("AND ");
+        andRadioButton.setEnabled(false);
         andRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 andRadioButtonActionPerformed(evt);
@@ -115,6 +152,7 @@ public class MainJFrame extends javax.swing.JFrame {
         });
 
         orRadioButton.setText("OR");
+        orRadioButton.setEnabled(false);
         orRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 orRadioButtonActionPerformed(evt);
@@ -122,6 +160,7 @@ public class MainJFrame extends javax.swing.JFrame {
         });
 
         notRadioButton.setText("NOT");
+        notRadioButton.setEnabled(false);
         notRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 notRadioButtonActionPerformed(evt);
@@ -135,6 +174,69 @@ public class MainJFrame extends javax.swing.JFrame {
             }
         });
 
+        suggestTextArea.setEditable(false);
+        suggestTextArea.setColumns(20);
+        suggestTextArea.setRows(5);
+        suggestTextArea.setEnabled(false);
+        jScrollPane1.setViewportView(suggestTextArea);
+
+        pdfDocumentRadioButton.setText("PDF Document");
+        pdfDocumentRadioButton.setEnabled(false);
+        pdfDocumentRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pdfDocumentRadioButtonActionPerformed(evt);
+            }
+        });
+
+        wordDocumentRadioButton.setText("Word Format Document");
+        wordDocumentRadioButton.setEnabled(false);
+
+        suggestButton2.setText("Suggest Words TextBox-2");
+        suggestButton2.setEnabled(false);
+        suggestButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                suggestButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Select Text Format to be searched");
+
+        jLabel2.setText("Operator Search");
+
+        advancedSearch.setText("Advanced");
+        advancedSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advancedSearchActionPerformed(evt);
+            }
+        });
+
+        mainSearchTextBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainSearchTextBoxActionPerformed(evt);
+            }
+        });
+
+        searchLabel1.setText("Enter the text to be Searched");
+
+        mainSuggestButton.setText("Suggest Words TextBox");
+        mainSuggestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainSuggestButtonActionPerformed(evt);
+            }
+        });
+
+        mainsearchButton.setText("Search");
+        mainsearchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mainsearchButtonActionPerformed(evt);
+            }
+        });
+
+        mainSuggestTextArea.setEditable(false);
+        mainSuggestTextArea.setColumns(20);
+        mainSuggestTextArea.setRows(5);
+        jScrollPane2.setViewportView(mainSuggestTextArea);
+
         javax.swing.GroupLayout leftJPanelLayout = new javax.swing.GroupLayout(leftJPanel);
         leftJPanel.setLayout(leftJPanelLayout);
         leftJPanelLayout.setHorizontalGroup(
@@ -142,64 +244,117 @@ public class MainJFrame extends javax.swing.JFrame {
             .addGroup(leftJPanelLayout.createSequentialGroup()
                 .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(leftJPanelLayout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(searchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(leftJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(searchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
-                        .addComponent(suggestButton))
-                    .addGroup(leftJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(andRadioButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(orRadioButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(notRadioButton))
-                    .addGroup(leftJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(searchTextBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20)
+                        .addComponent(searchLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, leftJPanelLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(advancedSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(11, 11, 11))
                     .addGroup(leftJPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(leftJPanelLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 4, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(xmlDocumentRadioButton))
-                            .addComponent(jsonDocumentRadioButton)
-                            .addComponent(pdfDocumentRadioButton)
-                            .addComponent(textDocumentRadioButton)))
+                            .addComponent(mainSearchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mainsearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mainSuggestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
+                .addContainerGap())
+            .addGroup(leftJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(leftJPanelLayout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(58, Short.MAX_VALUE))
+                        .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(searchTextBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(leftJPanelLayout.createSequentialGroup()
+                                .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, leftJPanelLayout.createSequentialGroup()
+                                        .addComponent(andRadioButton)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(orRadioButton)))
+                                .addGap(18, 18, 18)
+                                .addComponent(notRadioButton))
+                            .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(textDocumentRadioButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(htmlDocumentRadioButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jsonDocumentRadioButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(pdfDocumentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(wordDocumentRadioButton)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(leftJPanelLayout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(xmlDocumentRadioButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(suggestButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(leftJPanelLayout.createSequentialGroup()
+                        .addComponent(searchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(suggestButton))
+                    .addGroup(leftJPanelLayout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addComponent(searchLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         leftJPanelLayout.setVerticalGroup(
             leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(leftJPanelLayout.createSequentialGroup()
-                .addGap(49, 49, 49)
+                .addContainerGap()
+                .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(leftJPanelLayout.createSequentialGroup()
+                        .addComponent(searchLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mainSearchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mainSuggestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(mainsearchButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                .addComponent(advancedSearch)
+                .addGap(26, 26, 26)
                 .addComponent(searchLabel)
                 .addGap(18, 18, 18)
                 .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(searchTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(suggestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
-                .addComponent(searchTextBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(andRadioButton)
-                    .addComponent(orRadioButton)
-                    .addComponent(notRadioButton))
-                .addGap(18, 18, 18)
-                .addComponent(textDocumentRadioButton)
-                .addGap(30, 30, 30)
-                .addComponent(pdfDocumentRadioButton)
-                .addGap(37, 37, 37)
+                    .addComponent(searchTextBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(suggestButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(leftJPanelLayout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addGroup(leftJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(andRadioButton)
+                            .addComponent(orRadioButton)
+                            .addComponent(notRadioButton)))
+                    .addGroup(leftJPanelLayout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(4, 4, 4)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(textDocumentRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(htmlDocumentRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsonDocumentRadioButton)
-                .addGap(26, 26, 26)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(xmlDocumentRadioButton)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pdfDocumentRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(wordDocumentRadioButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(searchButton)
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addGap(40, 40, 40))
         );
 
         splitJPane.setLeftComponent(leftJPanel);
@@ -218,7 +373,7 @@ public class MainJFrame extends javax.swing.JFrame {
         );
         rightJPanelLayout.setVerticalGroup(
             rightJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(rightScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 548, Short.MAX_VALUE)
+            .addComponent(rightScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
         );
 
         splitJPane.setRightComponent(rightJPanel);
@@ -250,109 +405,283 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void searchTextBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextBoxActionPerformed
         // TODO add your handling code here:
-    
+
     }//GEN-LAST:event_searchTextBoxActionPerformed
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
         // TODO add your handling code here:
-        
-       try{
-           if(andRadioButton.isSelected()){
-               operatorSelect="AND";
-               
-           }
-           else if(orRadioButton.isSelected()){
-               operatorSelect="OR";
-           }
-           else if(notRadioButton.isSelected()){
-               operatorSelect="NOT";
-           }
-            else {
-               operatorSelect="NONE";
-           }
-           
-           
-           if(jsonDocumentRadioButton.isSelected()){
-             fileSelect="JSON";  
-           }
-           else if(textDocumentRadioButton.isSelected()){
-                 fileSelect="TEXT";  
-           }
-          else if(xmlDocumentRadioButton.isSelected()){
-                 fileSelect="XML";  
-           }
-           
-           else if(pdfDocumentRadioButton.isSelected()){
-                 fileSelect="PDF";  
-           }
-           
-            System.out.println(operatorSelect);
+
+        resultTextArea.setText("");
+        try {
+            if (andRadioButton.isSelected()) {
+                operatorSelect = "AND";
+
+            } else if (orRadioButton.isSelected()) {
+                operatorSelect = "OR";
+            } else if (notRadioButton.isSelected()) {
+                operatorSelect = "NOT";
+            } else {
+                operatorSelect = "NONE";
+            }
+
+            if (jsonDocumentRadioButton.isSelected()) {
+                fileSelect = "JSON";
+            } else if (textDocumentRadioButton.isSelected()) {
+                fileSelect = "TEXT";
+            } else if (xmlDocumentRadioButton.isSelected()) {
+                fileSelect = "XML";
+            } else if (htmlDocumentRadioButton.isSelected()) {
+                fileSelect = "HTML";
+            } else if (pdfDocumentRadioButton.isSelected()) {
+                fileSelect = "PDF";
+            } else if (wordDocumentRadioButton.isSelected()) {
+                fileSelect = "WORD";
+            } else{
+                fileSelect="ALL";
+            }
             
-            System.out.println(fileSelect);
+            
+
+            String searchText = searchTextBox.getText();
+            if (searchText.length() == 0) {
+                JOptionPane.showMessageDialog(null, "Please enter text to search");
+                return;
+            }
+            searchText = searchText.trim().replaceAll(" +", " ");
+            String searchText2 = searchTextBox2.getText();
            
-           
-        String searchText=searchTextBox.getText();
-        
-        if(searchText.length()==0){
-            JOptionPane.showMessageDialog(null, "Please enter text to search");
-          return;
+            if(fileSelect=="ALL" ){
+                Full_Index_Search search=new Full_Index_Search(searchText, searchText2, resultTextArea);
+                    search.searchMain(searchText,searchText2,operatorSelect);
+                
+                        
+                 }
+            
+            
+            
+             else  if (fileSelect == "TEXT") {
+
+                if (operatorSelect == "NONE") {
+                    Lucene_Indexing indexing = new Lucene_Indexing(searchText, searchText2, resultTextArea);
+                    indexing.indexingText(operatorSelect);
+                } else {
+
+                    if (searchText2.length() == 0) {
+                        JOptionPane.showMessageDialog(null, "Please enter the text to be searched in second text Box");
+                        return;
+                    }
+
+                    searchText2 = searchText2.trim().replaceAll(" +", " ");
+                    Lucene_Indexing indexing = new Lucene_Indexing(searchText, searchText2, resultTextArea);
+                    indexing.indexingText(operatorSelect);
+                }
+
+            } else if (fileSelect == "PDF") {
+                IndexPDF indexing = new IndexPDF(searchText, searchText2, resultTextArea);
+                indexing.indexingPdfText(operatorSelect);
+            } else if (fileSelect == "JSON") {
+                IndexJSON indexing = new IndexJSON(searchText);
+                indexing.indexingJSON();
+            } else if (fileSelect == "XML") {
+                IndexXML indexing = new IndexXML(searchText, searchText2, operatorSelect, resultTextArea);
+                indexing.indeXML();
+            } else if (fileSelect == "HTML") {
+                IndexHTML indexing = new IndexHTML(searchText, resultTextArea);
+                indexing.main();
+            } else if (fileSelect == "WORD") {
+                IndexWord indexing = new IndexWord(searchText, resultTextArea);
+                indexing.main();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        searchText= searchText.trim().replaceAll(" +", " ");
-        Lucene_Indexing indexing = new Lucene_Indexing(searchText,resultTextArea);
-        indexing.indexingText();
-      }catch(Exception e){
-          e.printStackTrace();
-      }
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void suggestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suggestButtonActionPerformed
         // TODO add your handling code here:
-        Lucene_Suggestion suggestion=new Lucene_Suggestion();
-        
-        String searchText=searchTextBox.getText();
-        searchText= searchText.trim().replaceAll(" +", " ");
-        
-       int wordLength = searchText.split("\\s+").length;
-       String lastWord = searchText.substring(searchText.lastIndexOf(" ")+1);
-       // suggestion.suggest(lastWord);
-        
+
+        String searchText = searchTextBox.getText();
+        if (searchText.length() == 0) {
+            JOptionPane.showMessageDialog(null, "Please enter text to suggest words");
+            return;
+        }
+
+        if (jsonDocumentRadioButton.isSelected()) {
+            fileSelect = "JSON";
+        } else if (textDocumentRadioButton.isSelected()) {
+            fileSelect = "TEXT";
+        } else if (xmlDocumentRadioButton.isSelected()) {
+            fileSelect = "XML";
+        } else if (htmlDocumentRadioButton.isSelected()) {
+            fileSelect = "PDF";
+        } else if (wordDocumentRadioButton.isSelected()) {
+            fileSelect = "WORD";
+        } else {
+
+            JOptionPane.showMessageDialog(null, "Please select the file format for suggestion of words");
+            return;
+        }
+
+        Lucene_Suggestion suggestion = new Lucene_Suggestion();
+        searchText = searchText.trim().replaceAll(" +", " ");
+
+        int wordLength = searchText.split("\\s+").length;
+        String lastWord = searchText.substring(searchText.lastIndexOf(" ") + 1);
+        suggestion.suggest(lastWord, suggestTextArea, fileSelect);
+
     }//GEN-LAST:event_suggestButtonActionPerformed
 
     private void andRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_andRadioButtonActionPerformed
         // TODO add your handling code here:
         searchTextBox2.setEnabled(true);
-        
-       
-       
-        
+        suggestButton2.setEnabled(true);
+
+
     }//GEN-LAST:event_andRadioButtonActionPerformed
 
     private void orRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orRadioButtonActionPerformed
         // TODO add your handling code here:
-       searchTextBox2.setEnabled(true);
-    
+        searchTextBox2.setEnabled(true);
+        suggestButton2.setEnabled(true);
+
     }//GEN-LAST:event_orRadioButtonActionPerformed
 
     private void notRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notRadioButtonActionPerformed
         // TODO add your handling code here:
-          searchTextBox2.setEnabled(false);
-    
+        searchTextBox2.setEnabled(true);
+        suggestButton2.setEnabled(true);
+
     }//GEN-LAST:event_notRadioButtonActionPerformed
 
     private void searchTextBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextBox2ActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_searchTextBox2ActionPerformed
 
-    
-    public void printResult(String resultString){
+    private void pdfDocumentRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pdfDocumentRadioButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pdfDocumentRadioButtonActionPerformed
+
+    private void suggestButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suggestButton2ActionPerformed
+
+        String searchText2 = searchTextBox2.getText();
+        if (searchText2.length() == 0) {
+            JOptionPane.showMessageDialog(null, "Please enter text to search");
+            return;
+        }
+
+        if (jsonDocumentRadioButton.isSelected()) {
+            fileSelect = "JSON";
+        } else if (textDocumentRadioButton.isSelected()) {
+            fileSelect = "TEXT";
+        } else if (xmlDocumentRadioButton.isSelected()) {
+            fileSelect = "XML";
+        } else if (htmlDocumentRadioButton.isSelected()) {
+            fileSelect = "PDF";
+        } else if (wordDocumentRadioButton.isSelected()) {
+            fileSelect = "WORD";
+        } else {
+
+            JOptionPane.showMessageDialog(null, "Please select the file format for suggestion of words");
+            return;
+        }
+
+        Lucene_Suggestion suggestion = new Lucene_Suggestion();
+
+        searchText2 = searchText2.trim().replaceAll(" +", " ");
+
+        int wordLength2 = searchText2.split("\\s+").length;
+        String lastWord2 = searchText2.substring(searchText2.lastIndexOf(" ") + 1);
+      //  suggestion.suggest(lastWord2, suggestTextArea, fileSelect);
+    }//GEN-LAST:event_suggestButton2ActionPerformed
+
+    private void advancedSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advancedSearchActionPerformed
+        // TODO add your handling code here:
+        mainSuggestTextArea.setText("");
+        mainSuggestTextArea.setEnabled(false);
+        mainSearchTextBox.setEnabled(false);
+        mainSuggestButton.setEnabled(false);
+        mainsearchButton.setEnabled(false);
+         searchTextBox.setEnabled(true);
+         andRadioButton.setEnabled(true);
+         
+         orRadioButton.setEnabled(true);
+         
+         notRadioButton.setEnabled(true);
+         suggestTextArea.setEnabled(true);
+         pdfDocumentRadioButton.setEnabled(true);
+         
+         xmlDocumentRadioButton.setEnabled(true);
+         
+        htmlDocumentRadioButton.setEnabled(true);
+         
+         wordDocumentRadioButton.setEnabled(true);
+         
+         textDocumentRadioButton.setEnabled(true);
+         jsonDocumentRadioButton.setEnabled(true);
+         suggestButton.setEnabled(true);
+         searchButton.setEnabled(true);
+    }//GEN-LAST:event_advancedSearchActionPerformed
+
+    private void mainSearchTextBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainSearchTextBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mainSearchTextBoxActionPerformed
+
+    private void mainSuggestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainSuggestButtonActionPerformed
+        // TODO add your handling code here:
         
+          String searchText = mainSearchTextBox.getText();
+        if (searchText.length() == 0) {
+            JOptionPane.showMessageDialog(null, "Please enter text to suggest words");
+            return;
+        }
+
+      
+
+        Lucene_Suggestion suggestion = new Lucene_Suggestion();
+
+        searchText = searchText.trim().replaceAll(" +", " ");
+
+        int wordLength = searchText.split("\\s+").length;
+        String lastWord = searchText.substring(searchText.lastIndexOf(" ") + 1);
+    //    suggestion.suggest(lastWord,mainSuggestTextArea, fileSelect);
+
+    }//GEN-LAST:event_mainSuggestButtonActionPerformed
+
+    private void mainsearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mainsearchButtonActionPerformed
+        // TODO add your handling code here:
+        
+        resultTextArea.setText("");
+         
+        String mainSearch = mainSearchTextBox.getText();
+       
+         if (mainSearch.length() == 0) {
+                JOptionPane.showMessageDialog(null, "Please enter text to search");
+                return;
+            }
+        
+                mainSearch = mainSearch.trim().replaceAll(" +", " ");
+                Full_Index_Search search=new Full_Index_Search(mainSearch,"",resultTextArea);
+        try {
+            search.searchMain(mainSearch,"","NONE");
+        } catch (IOException ex) {
+            Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidTokenOffsetsException ex) {
+            Logger.getLogger(MainJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+                
+                   
+            
+    }//GEN-LAST:event_mainsearchButtonActionPerformed
+
+    public void printResult(String resultString) {
+
         resultTextArea.setText(resultString);
     }
-    
-    
-    
+
     /**
      * @param args the command line arguments
      */
@@ -392,10 +721,20 @@ public class MainJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton advancedSearch;
     private javax.swing.JRadioButton andRadioButton;
+    private javax.swing.JRadioButton htmlDocumentRadioButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JRadioButton jsonDocumentRadioButton;
     private javax.swing.JPanel leftJPanel;
+    private javax.swing.JTextField mainSearchTextBox;
+    private javax.swing.JButton mainSuggestButton;
+    private javax.swing.JTextArea mainSuggestTextArea;
+    private javax.swing.JButton mainsearchButton;
     private javax.swing.JRadioButton notRadioButton;
     private javax.swing.JRadioButton orRadioButton;
     private javax.swing.JRadioButton pdfDocumentRadioButton;
@@ -404,11 +743,15 @@ public class MainJFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane rightScrollPane;
     private javax.swing.JButton searchButton;
     private javax.swing.JLabel searchLabel;
+    private javax.swing.JLabel searchLabel1;
     private javax.swing.JTextField searchTextBox;
     private javax.swing.JTextField searchTextBox2;
     private javax.swing.JSplitPane splitJPane;
     private javax.swing.JButton suggestButton;
+    private javax.swing.JButton suggestButton2;
+    private javax.swing.JTextArea suggestTextArea;
     private javax.swing.JRadioButton textDocumentRadioButton;
+    private javax.swing.JRadioButton wordDocumentRadioButton;
     private javax.swing.JRadioButton xmlDocumentRadioButton;
     // End of variables declaration//GEN-END:variables
 }

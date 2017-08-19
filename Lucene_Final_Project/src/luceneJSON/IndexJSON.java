@@ -34,7 +34,7 @@ import org.json.simple.parser.ParseException;
 
 /**
  *
- * @author PeaceFull
+ * @author deivakumaran dhanasegaran
  */
 public class IndexJSON {
 
@@ -42,20 +42,20 @@ public class IndexJSON {
      * @param args the command line arguments
      *
      */
-    String jsonFilePath = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\JSON_input";
-
-    String indexPath = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\JSON_Output";
-
+    String input_Files_Path = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\File_Format_Final_Project\\JSON_Input";
+    String INDEX_DIRECTORY = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\File_Format_Final_Project\\JSON_Output";
+          
     IndexWriter indexWriter = null;
+   
+    String searchQuery;
 
-    public IndexJSON() {
-        //    this.indexPath = indexPath;
-        //  this.jsonFilePath = jsonFilePath;
+    public IndexJSON(String searchQuery) {
+        this.searchQuery = searchQuery;
     }
 
     public void createIndex() throws IOException, ParseException {
         openIndex();
-        File dir = new File(jsonFilePath);
+        File dir = new File(input_Files_Path);
         File[] files = dir.listFiles();
 
         for (File file : files) {
@@ -66,8 +66,6 @@ public class IndexJSON {
                 JSONArray jsonObjects = parseJSONFile(filePath);
 
                 addDocuments(jsonObjects, filePath, fileName);
-                //  BufferedReader inputStream = new BufferedReader(new FileReader(file));
-                // addPlainTextDocuments(writer, inputStream, file.getPath(), file.getName());
             }
         }
 
@@ -104,8 +102,7 @@ public class IndexJSON {
     public boolean openIndex() {
         try {
             StandardAnalyzer analyzer = new StandardAnalyzer();
-            //   String INDEX_DIRECTORY = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\JSON_Output";
-            Directory indexDirectory = FSDirectory.open(Paths.get(indexPath));
+            Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
             indexWriter = new IndexWriter(indexDirectory, config);
@@ -155,17 +152,13 @@ public class IndexJSON {
         }
     }
 
-    public static void main(String[] args) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+    public void indexingJSON() throws IOException, org.apache.lucene.queryparser.classic.ParseException {
         // TODO code application logic here
 
-        String INDEX_PATH = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\JSON_Output";
-        //  String JSON_FILE_PATH = "E:\\Algorithms and Data Structure\\Summer-2017\\Final_Project\\JSON_File.json";
-
         try {
-            IndexJSON lucene = new IndexJSON();
-            lucene.createIndex();
+            createIndex();
 
-            Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
+            Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
             IndexReader indexReader = DirectoryReader.open(indexDirectory);
             int numDocs = indexReader.numDocs();
             assertEquals(numDocs, 3);
@@ -178,7 +171,7 @@ public class IndexJSON {
             e.printStackTrace();
         }
 
-        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
+        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
         IndexReader indexReader = DirectoryReader.open(indexDirectory);
         final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
@@ -205,7 +198,7 @@ public class IndexJSON {
 
             //Printing - to which document result belongs
             System.out.println("Path of the file" + " : " + d.get("filePath"));
-            
+
             System.out.println("Name of the file" + " : " + d.get("fileName"));
             System.out.println('\n' + "The document found is :" + d);
 
